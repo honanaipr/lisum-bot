@@ -1,0 +1,71 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.black]
+target-version = ['py39']
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+
+[tool.poetry]
+authors = ["scary <scary@scary.com>"]
+description = ""
+name = "lisum-bot"
+packages = [{include = "lisum_bot"}]
+readme = "README.md"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+aiogram = "3.0.0b7"
+environ-config = "^23.2.0"
+loguru = "^0.7.0"
+python = "^3.11"
+python-dotenv = "^1.0.0"
+httpx = "^0.24.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ipython = "^8.14.0"
+mypy = "*"
+pre-commit = "^3.3.3"
+ruff = "*"
+types-redis = "^4.6.0.3"
+types-requests = "^2.31.0.2"
+
+[tool.poetry.scripts]
+start = 'tele-gpt.start:start'
+
+[tool.ruff]
+ignore = [
+  "F401",  # unused-import
+  "E501",  # line-too-long
+  "E712",  # true-false-comparison
+  "ANN101"  # missing-type-self
+]
+select = [
+  "E",  # Pyflakes
+  "F",  # pycodestyle
+  "W",  # pycodestyle
+  "C90",  # mccabe
+  "I",  # isort
+  "N",
+  "UP",  # ?
+  "ANN",  # ?
+  "TCH"
+]
+
+[tool.ruff.flake8-annotations]
+# Whether to allow the omission of a return type hint for __init__ if at least one argument is annotated.
+allow-star-arg-any = true
+mypy-init-return = true
+# Whether to suppress ANN401 for dynamically typed *args and **kwargs arguments.
+suppress-none-returning = true
+
+[tool.ruff.flake8-type-checking]
+strict = true
+
+[tool.ruff.pydocstyle]
+convention = "google"
