@@ -19,12 +19,14 @@ readme = "README.md"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-aiogram = "3.0.0b7"
 environ-config = "^23.2.0"
 loguru = "^0.7.0"
 python = "^3.11"
 python-dotenv = "^1.0.0"
 httpx = "^0.24.1"
+redis = "^5.0.0"
+aiogram = "^3.0.0"
+pydantic-settings = "^2.0.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
