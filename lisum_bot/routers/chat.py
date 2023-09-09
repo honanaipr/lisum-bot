@@ -65,16 +65,17 @@ async def message_handler(message: Message, state: FSMContext) -> None:
                 id=hash((message.chat.id, message.message_id)),
                 question=message.text,
                 reply_id=hash(
-                    (message.chat.id, message.reply_to_message.message_id - 1)
+                    (message.chat.id, (await state.get_data())["last_question_id"])
                 ),
             )
         else:
+            await state.update_data(last_question_id=message.message_id)
             response = await lisum.dialog_request(
                 id=hash((message.chat.id, message.message_id)), question=message.text
             )
         await answer.edit_text(response[:4096], reply_markup=reactions_keyboard)
     except LisumError as exp:
-        logger.error(exp)
+        logger.info(exp)
         await answer.edit_text("Ошибка :(")
     finally:
         await state.set_state(Chat.waiting_message)

@@ -11,6 +11,7 @@ from loguru import logger
 from lisum_bot.loader import bot, dp
 from lisum_bot.routers import chat_router
 
+
 dp.include_router(chat_router)
 
 
