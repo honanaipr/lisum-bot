@@ -12,4 +12,4 @@ RUN poetry install --no-root
 
 COPY . .
 
-CMD poetry run python -m tele-gpt
+CMD poetry run python -m lisum_bot

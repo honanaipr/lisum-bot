@@ -24,10 +24,11 @@ class LisumConfig(BaseModel):
 
 class Settings(BaseSettings):
     bot: BotConfig
-    redis: RedisDsn = Field('redis://localhost:6379/db')
+    redis: RedisDsn = Field("redis://localhost:6379/db")
     lisum: LisumConfig
 
-    model_config = SettingsConfigDict(env_nested_delimiter='_', env_file='.env')
+    model_config = SettingsConfigDict(env_nested_delimiter="_", env_file=".env")
+
 
 try:
     config = Settings()

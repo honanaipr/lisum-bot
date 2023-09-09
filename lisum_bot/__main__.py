@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import sys
+from logging import LogRecord
 
 from aiogram import Dispatcher, F
 from aiogram.filters import Command, CommandObject
@@ -16,11 +17,13 @@ dp.include_router(chat_router)
 async def main():
     await dp.start_polling(bot)
 
+
 class LoguruHandler(logging.Handler):
-    def emit(self, record):
+    def emit(self, record: LogRecord):
         log_entry = self.format(record)
         # Отправляем лог в Loguru
         logger.log(record.levelname, log_entry, level="DEBUG")
+
 
 if __name__ == "__main__":
     logging.getLogger().addHandler(LoguruHandler())

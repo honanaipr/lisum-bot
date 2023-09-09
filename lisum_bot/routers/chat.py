@@ -1,22 +1,28 @@
 import asyncio
+import unicodedata
 from collections.abc import Generator
 
-# import openai
-# import requests
 from aiogram import F, Router
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.filters.command import CommandObject
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger
 
 from lisum_bot import lisum
-# from tele_gpt.gpt import get_gpt_stream
+from lisum_bot.exceptions import LisumError
 from lisum_bot.states import Chat
 
 chat_router = Router()
 
 task_pool: set[asyncio.Task] = set()
+
+builder = InlineKeyboardBuilder()
+reactions = ["😠", "😕", "😐", "🙂", "😃"]
+for reaction in reactions:
+    builder.button(text=f"{reaction}", callback_data=unicodedata.name(reaction))
+reactions_keyboard = builder.as_markup()
 
 
 @chat_router.message(Command("state"))
@@ -44,87 +50,49 @@ async def command_start(
         )
 
 
-# @chat_router.message(Chat.waiting_role, F.text)
-# async def role_handler(message: Message, state: FSMContext) -> None:
-#     await state.set_state(Chat.waiting_message)
-#     messages = [
-#         {
-#             "role": "system",
-#             "content": message.text,
-#         }
-#     ]
-#     await state.update_data(messages=messages)
-#     await message.answer(
-#         "Начинайте чат:",
-#         reply_markup=ReplyKeyboardRemove(),
-#     )
-
-
-# async def chat_task(stream: Generator, message: Message, state: FSMContext):
-#     try:
-#         async with asyncio.timeout(100):
-#             chunks_queue = []
-#             preamble = "Печатает...\n"
-#             message_text = ""
-#             try:
-#                 for chunk in stream:
-#                     if chunk["choices"][0]["finish_reason"] != "stop":
-#                         chunks_queue.append(chunk["choices"][0]["delta"]["content"])
-#                         if len(chunks_queue) > 50:
-#                             message_text += "".join(chunks_queue)
-#                             chunks_queue.clear()
-#                             await message.edit_text(preamble + message_text)
-#                     await asyncio.sleep(0)
-#             except (openai.error.APIError, requests.exceptions.RequestException) as exc:
-#                 logger.debug("Open ai stream error")
-#                 await message.answer("Модель перегружена. Попробуйте позже")
-#                 await message.answer(str(exc))
-#                 await state.set_state(Chat.waiting_role)
-#                 await message.answer(
-#                     "Введите роль",
-#                     reply_markup=ReplyKeyboardRemove(),
-#                 )
-#                 task = asyncio.current_task()
-#                 if task:
-#                     task_pool.remove(task)
-#                 return
-#             if chunks_queue:
-#                 message_text += "".join(chunks_queue)
-#                 await message.edit_text(message_text)
-#             data = await state.get_data()
-#             messages = data["messages"]
-#             messages.append({"role": "assistant", "content": message_text})
-#             await state.update_data(messages=messages)
-#             await state.set_state(Chat.waiting_message)
-#             if task:
-#                 task_pool.remove(task)
-#             logger.debug("Task ended normaly")
-#     except TimeoutError:
-#         logger.debug("Timeout")
-#         await message.answer("Модель перегружена. Попробуйте позже")
-#         await state.set_state(Chat.waiting_role)
-#         await message.answer(
-#             "Введите роль",
-#             reply_markup=ReplyKeyboardRemove(),
-#         )
-#         if task:
-#             task_pool.remove(task)
-#         return
-
-
 @chat_router.message(Chat.processing_message)
 async def message_deleter(message: Message, state: FSMContext) -> None:
     await message.delete()
 
 
-@chat_router.message(Chat.waiting_message, F.text)
+@chat_router.message(~StateFilter(Chat.processing_message), F.text)
 async def message_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(Chat.processing_message)
-    answer = await message.answer("Печатает...")
-    if message.reply_to_message:
-        response = await lisum.send_request(id=hash((message.chat.id, message.message_id)), question=message.text, reply_id=message.reply_to_message.id)
-    else:
-        response = await lisum.send_request(id=hash((message.chat.id, message.message_id)), question=message.text)
-    await answer.edit_text(response)
-    await state.set_state(Chat.waiting_message)
+    try:
+        answer = await message.reply("Печатает...")
+        if message.reply_to_message:
+            response = await lisum.dialog_request(
+                id=hash((message.chat.id, message.message_id)),
+                question=message.text,
+                reply_id=hash(
+                    (message.chat.id, message.reply_to_message.message_id - 1)
+                ),
+            )
+        else:
+            response = await lisum.dialog_request(
+                id=hash((message.chat.id, message.message_id)), question=message.text
+            )
+        await answer.edit_text(response[:4096], reply_markup=reactions_keyboard)
+    except LisumError as exp:
+        logger.error(exp)
+        await answer.edit_text("Ошибка :(")
+    finally:
+        await state.set_state(Chat.waiting_message)
 
+
+@chat_router.callback_query()
+async def callback_query_handler(callback_query: CallbackQuery) -> None:
+    try:
+        await lisum.reaction_request(
+            id=hash(
+                (
+                    callback_query.message.chat.id,
+                    callback_query.message.reply_to_message.message_id,
+                )
+            ),
+            reaction=callback_query.data,
+        )
+        await callback_query.message.delete_reply_markup()
+    except LisumError as exp:
+        logger.error(exp)
+        await callback_query.message.reply("Ошибка :(")

@@ -8,3 +8,7 @@ class APIError(CustomError):
 
 class OpenAIError(CustomError):
     pass
+
+
+class LisumError(CustomError):
+    pass
