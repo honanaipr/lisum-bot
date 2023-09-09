@@ -20,6 +20,7 @@ class BotConfig(BaseModel):
 
 class LisumConfig(BaseModel):
     url: AnyHttpUrl
+    timeout: int
 
 
 class Settings(BaseSettings):

@@ -4,8 +4,9 @@
 ```sh
 mv .env.dist .env
 ```
-replace **<BOT_TOKEN>** with your bot token in **.env**
+set BOT_TOKEN in **.env**
 
+set LISUM_URL in **.env**
 ## Install dependencies
 ```sh
 poetry install

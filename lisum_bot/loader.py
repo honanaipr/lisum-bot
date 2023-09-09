@@ -29,7 +29,7 @@ elif config.redis.url:
     )
     logger.info(f"redis url: {config.redis.url}")
 else:
-    from aiogram.fsm.storage.memory import MemoryStorage
+    from aiogram.fsm.storage.memory import MemoryStorage  # noqa: F811
 
     storage = MemoryStorage()
 

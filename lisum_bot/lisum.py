@@ -7,7 +7,7 @@ from lisum_bot.config import config
 from lisum_bot.exceptions import LisumError
 
 BASE_URL: str = str(config.lisum.url)
-
+TIMEOUT: int = config.lisum.timeout
 
 class BaseRequest(BaseModel):
     id: int
@@ -33,7 +33,7 @@ async def dialog_request(id: int, question: str, reply_id: int | None = None) ->
             else:
                 request_data = DialogueRequest(id=id, question=question)
             response = await client.post(
-                BASE_URL, json=request_data.dict(), timeout=None
+                BASE_URL, json=request_data.dict(), timeout=TIMEOUT
             )
             if response.status_code == 200:
                 return response.json()["post"]["answer"]
@@ -48,7 +48,7 @@ async def reaction_request(id: int, reaction: str) -> None:
         async with httpx.AsyncClient() as client:
             request_data = ReactionRequest(reaction_emoji=reaction)
             response = await client.patch(
-                BASE_URL.rstrip("/") + f"/{id}", json=request_data.dict(), timeout=None
+                BASE_URL.rstrip("/") + f"/{id}", json=request_data.dict(), timeout=TIMEOUT
             )
             if response.status_code == 200:
                 return response.json()["post"]["answer"]
