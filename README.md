@@ -13,7 +13,7 @@ poetry install
 
 ## Run
 ```sh
-poetry run python -m tele_gpt
+poetry run python -m lisum_bot
 ```
 or
 ```sh
@@ -22,8 +22,8 @@ or
 
 ## Build and run with Docker
 ```sh
-docker build -t tele-gpt .
-docker run -d tele-gpt
+docker build -t lisum-bot .
+docker run -d lisum-bot
 ```
 
 ## Build and run with Docker-compose
