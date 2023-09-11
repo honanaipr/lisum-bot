@@ -36,6 +36,8 @@ pre-commit = "^3.3.3"
 ruff = "*"
 types-redis = "^4.6.0.3"
 types-requests = "^2.31.0.2"
+pytest-mock = "^3.11.1"
+pytest-asyncio = "^0.21.1"
 
 [tool.poetry.scripts]
 start = 'lisum_bot.start:start'
