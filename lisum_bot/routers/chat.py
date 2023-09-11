@@ -74,8 +74,8 @@ async def message_handler(message: Message, state: FSMContext) -> None:
                 id=hash((message.chat.id, message.message_id)), question=message.text
             )
         await answer.edit_text(response[:4096], reply_markup=reactions_keyboard)
-    except LisumError as exp:
-        logger.info(exp)
+    except Exception as exp:
+        print(exp)
         await answer.edit_text("Ошибка :(")
     finally:
         await state.set_state(Chat.waiting_message)
@@ -94,6 +94,6 @@ async def callback_query_handler(callback_query: CallbackQuery) -> None:
             reaction=callback_query.data,
         )
         await callback_query.message.delete_reply_markup()
-    except LisumError as exp:
-        logger.error(exp)
+    except Exception as exp:
+        print(exp)
         await callback_query.message.reply("Ошибка :(")
