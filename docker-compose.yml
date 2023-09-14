@@ -9,8 +9,9 @@ services:
     env_file: .env
     depends_on:
     - redis
-    environment:
-    - REDIS_DSN=redis://redis:6379/db
+    # environment:
+    # - REDIS_DSN=redis://redis:6379/db
+    network_mode: "host"
 
   redis:
     image: redis:latest
@@ -18,3 +19,7 @@ services:
     command: redis-server
     environment:
     - ALLOW_EMPTY_PASSWORD=yes
+
+networks:
+  host:
+    driver: host

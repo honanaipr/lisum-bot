@@ -12,7 +12,7 @@ from loguru import logger
 from lisum_bot.config import config
 
 storage: BaseStorage
-if config.redis.host and config.redis.port:
+if config.redis and config.redis.host and config.redis.port:
     from aiogram.fsm.storage.redis import (
         DefaultKeyBuilder,
         RedisEventIsolation,
@@ -25,7 +25,7 @@ if config.redis.host and config.redis.port:
     storage = RedisStorage(redis=redis, key_builder=key_builder)
     event_isolation = RedisEventIsolation(redis=redis, key_builder=key_builder)
     logger.info(f"redis host: {config.redis.host}, redis port: {config.redis.port}")
-elif config.redis.url:
+elif config.redis and config.redis.url:
     from aiogram.fsm.storage.redis import (
         DefaultKeyBuilder,
         RedisEventIsolation,
@@ -45,11 +45,12 @@ else:
     )
 
     storage = MemoryStorage()
-    event_isolation = BaseEventIsolation()
+    # event_isolation = BaseEventIsolation
 
 bot = Bot(token=config.bot.token)
-dp = Dispatcher(storage=MemoryStorage(), events_isolation=event_isolation)
+dp = Dispatcher(storage=MemoryStorage())
 
 @dp.startup()
 def on_start():
     logger.info(f"Started")
+
