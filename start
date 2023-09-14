@@ -1,2 +1,2 @@
 #!/bin/bash
-poetry run python -m tele-gpt
+poetry run python -m lisum_bot
