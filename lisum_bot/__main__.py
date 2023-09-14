@@ -11,22 +11,13 @@ from loguru import logger
 from lisum_bot.loader import bot, dp
 from lisum_bot.routers import chat_router
 
-
 dp.include_router(chat_router)
 
 
 async def main():
     await dp.start_polling(bot)
 
-
-class LoguruHandler(logging.Handler):
-    def emit(self, record: LogRecord):
-        log_entry = self.format(record)
-        # Отправляем лог в Loguru
-        logger.log(record.levelname, log_entry, level="DEBUG")
-
-
 if __name__ == "__main__":
-    logging.getLogger().addHandler(LoguruHandler())
+    # logging.getLogger().addHandler(LoguruHandler())
     logger.level("DEBUG")
     asyncio.run(main())

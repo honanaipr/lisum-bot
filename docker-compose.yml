@@ -10,7 +10,7 @@ services:
     depends_on:
     - redis
     environment:
-    - REDIS_URL=redis://redis:6379/db
+    - REDIS_DSN=redis://redis:6379/db
 
   redis:
     image: redis:latest

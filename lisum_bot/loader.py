@@ -49,3 +49,7 @@ else:
 
 bot = Bot(token=config.bot.token)
 dp = Dispatcher(storage=MemoryStorage(), events_isolation=event_isolation)
+
+@dp.startup()
+def on_start():
+    logger.info(f"Started")
