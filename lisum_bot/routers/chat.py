@@ -19,7 +19,7 @@ chat_router = Router()
 task_pool: set[asyncio.Task] = set()
 
 builder = InlineKeyboardBuilder()
-reactions = ["😠", "😕", "😐", "🙂", "😃"]
+reactions = ["👍","👎"]
 for reaction in reactions:
     builder.button(text=f"{reaction}", callback_data=unicodedata.name(reaction))
 reactions_keyboard = builder.as_markup()
